@@ -1,0 +1,159 @@
+<!doctype html>
+<html ng-app="myApp">
+
+<head>
+  <meta charset="utf-8">
+</head>
+
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+  integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+<style>
+  label {
+    padding: 10px;
+    margin: 0px;
+  }
+
+  .settingsWrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* flex-direction: column; */
+  }
+
+  .settingsInput {
+    padding: 10px;
+    display: flex;
+    align-items: center;
+
+  }
+
+  .cell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #858585;
+    overflow: hidden;
+  }
+
+  .label {
+
+    text-align: center;
+  }
+
+  .testWrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 50px;
+
+    overflow: auto;
+    width: fit-content;
+  }
+
+  .info {
+    text-align: end;
+
+    position: fixed;
+    border: 1px solid #c7c7c7;
+    padding: 10px;
+    bottom: 10px;
+    right: 10px;
+  }
+</style>
+
+<body ng-controller="myController">
+
+  <div class="container">
+
+
+
+    <hr>
+
+
+    <h4 style="    text-align: center;">test container</h4>
+
+    <div class="settingsWrap">
+
+      <div class="settingsInput">
+        <label for="width">Width</label>
+        <input type="number" name="width" ng-model="containerWidth" placeholder="Width">
+      </div>
+
+      <div class="settingsInput">
+        <label for="width">Height</label>
+        <input type="number" name="height" ng-model="containerHeight" placeholder="Height">
+      </div>
+
+    </div>
+
+    <div class="settingsWrap">
+      <div class="settingsInput">
+        <label for="text">Container Text</label>
+        <textarea name="text" cols="20" rows="5" ng-model="containerText"></textarea>
+      </div>
+    </div>
+
+    <div class="settingsWrap">
+      <div class="settingsInput">
+        <label for="text">FontSize Step</label>
+        <input type="number" name="height" ng-model="fontSizeStep" placeholder="Step">
+      </div>
+    </div>
+
+    <div class="settingsWrap">
+      <label>
+        <input type="radio" ng-model="handler" value="simple">
+        Linear (It starts from 1px font size.)
+      </label><br />
+      <!-- <label>
+        <input type="radio" ng-model="handler" value="type_1">
+        Use algorithm 1
+      </label><br /> -->
+      
+      <label>
+        <input type="radio" ng-model="handler" value="type_2">
+        Binary search
+      </label>
+      <br />
+    </div>
+
+
+    <div style="text-align: center; margin: 10px">
+      <button type="button" class="btn btn-primary" ng-click="onCalc()">CALC</button>
+    </div>
+
+
+    <hr>
+    <div class="testWrap">
+      <div class="cell" id="cell">
+        <div class="label">
+          {{containerText}}
+        </div>
+      </div>
+    </div>
+
+    <div class="row d-flex flex-row-reverse">
+      <div class="info">
+        <p><strong>Current fontSize</strong>: {{label.style.fontSize}}</p>
+        <p><strong>Last Iterations count for <span
+          style="color: darkblue; text-transform: uppercase;">{{handler}}</span></strong>: {{iterationsCount}}</p>
+          <p><strong style="color: darkred">Last operation time: </strong>: {{performance}} ms</p>
+        </div>
+    </div>
+
+  </div>
+
+
+
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
+
+  <script>
+    var myApp = angular.module('myApp', [])
+      .run(($rootScope) => {
+      });
+  </script>
+  <script src="fontTest.js"></script>
+</body>
+
+</html>
