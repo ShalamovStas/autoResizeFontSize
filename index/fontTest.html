@@ -49,6 +49,7 @@
 
     overflow: auto;
     width: fit-content;
+    margin: 10px auto;
   }
 
   .info {
@@ -59,6 +60,23 @@
     padding: 10px;
     bottom: 10px;
     right: 10px;
+  }
+
+  .widget {
+    border: 3px dashed #c1c1c1;
+    text-align: center;
+    overflow: hidden;
+    background-color: #efefef;
+
+
+  }
+
+  .widget p {
+    margin: 0px;
+  }
+
+  .widget .counter{
+    white-space: nowrap;
   }
 </style>
 
@@ -101,22 +119,22 @@
       </div>
     </div>
 
-    <div class="settingsWrap">
+    <!-- <div class="settingsWrap">
       <label>
         <input type="radio" ng-model="handler" value="simple">
         Linear (It starts from 1px font size.)
       </label><br />
-      <!-- <label>
+      <label>
         <input type="radio" ng-model="handler" value="type_1">
         Use algorithm 1
-      </label><br /> -->
-      
+      </label><br />
+
       <label>
         <input type="radio" ng-model="handler" value="type_2">
         Binary search
       </label>
       <br />
-    </div>
+    </div> -->
 
 
     <div style="text-align: center; margin: 10px">
@@ -133,13 +151,26 @@
       </div>
     </div>
 
+    <hr>
+    <div class="testWrap">
+      <div class="widget">
+        <div class="title">
+          <p>Asset Inspection Duration</p>
+        </div>
+        <div class="counter">
+          <span class="value" style="">0</span>
+          <span class="small-label"> min</span>
+        </div>
+      </div>
+    </div>
+
     <div class="row d-flex flex-row-reverse">
       <div class="info">
         <p><strong>Current fontSize</strong>: {{label.style.fontSize}}</p>
         <p><strong>Last Iterations count for <span
-          style="color: darkblue; text-transform: uppercase;">{{handler}}</span></strong>: {{iterationsCount}}</p>
-          <p><strong style="color: darkred">Last operation time: </strong>: {{performance}} ms</p>
-        </div>
+              style="color: darkblue; text-transform: uppercase;">{{handler}}</span></strong>: {{iterationsCount}}</p>
+        <p><strong style="color: darkred">Last operation time: </strong>: {{performance}} ms</p>
+      </div>
     </div>
 
   </div>

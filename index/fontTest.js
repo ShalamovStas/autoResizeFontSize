@@ -15,6 +15,14 @@ myApp.controller("myController", function ($scope, $element) {
     let label = angular.element(document.querySelector(".label"))[0];
     $scope.label = label
 
+
+    let widgetElement = document.querySelector(".widget");
+    $scope.widget = angular.element(widgetElement)[0];
+
+    $scope.widgetTitle = angular.element(widgetElement.querySelector(".title"))[0];
+    $scope.widgetCounter = angular.element(widgetElement.querySelector(".counter"))[0];
+
+
     init();
 
     setTimeout(() => {
@@ -28,8 +36,13 @@ myApp.controller("myController", function ($scope, $element) {
         $scope.containerHeight = parseInt(localStorage.getItem("containerHeight"));
         $scope.fontSizeStep = parseFloat(localStorage.getItem("fontSizeStep"));
 
-        if (!$scope.fontSizeStep)
+        $scope.fontSizeStep = 1;
+
+        if (!$scope.fontSizeStep || $scope.fontSizeStep < 1)
             $scope.fontSizeStep = 1;
+
+        if (!$scope.containerText)
+            $scope.containerText = "test";
 
         label.style.fontSize = 2 + "px";
         $scope.$watch('containerText', function (newValue, oldValue) {
@@ -76,11 +89,40 @@ myApp.controller("myController", function ($scope, $element) {
         cell.style.width = $scope.containerWidth + "px"
         cell.style.height = $scope.containerHeight + "px"
 
-        resizeText(cell, label)
+        $scope.widget.style.width = $scope.containerWidth + "px"
+        $scope.widget.style.height = $scope.containerHeight + "px"
+
+        onCalc();
+
     }
 
     function onCalc() {
-        resizeText(cell, label)
+         resizeText(cell, label, { maxHeight: 75, maxWidth: 75 })
+
+        resizeText($scope.widget, $scope.widgetTitle, { maxHeight: 25, maxWidth: 50 })
+        resizeText($scope.widget, $scope.widgetCounter, { maxHeight: 75, maxWidth: 50, isOverFlownDelegate: isOverFlownDelegateForWidget, setFontSizeDelegate: setFontSizeDelegate })
+    }
+
+    var setFontSizeDelegate = (fontSize, element) => {
+        var label = element.querySelector(".value");
+        var smallLabel = element.querySelector(".small-label");
+
+        label.style.fontSize = `${fontSize}px`;
+        smallLabel.style.fontSize = `${Math.floor(fontSize / 2)}px`;
+    }
+
+    var isOverFlownDelegateForWidget = function (cell, label, params) {
+        let heightRatio = params?.maxHeight ? params.maxHeight / 100 : 1;
+        
+        let widthRatio = params?.maxWidth ? params.maxWidth / 100 : 1;
+
+        let heightWidthCheck =
+            label.offsetHeight > cell.offsetHeight * heightRatio
+            || (label.offsetWidth > cell.offsetWidth * widthRatio || label.offsetHeight > cell.offsetHeight * heightRatio);
+
+        let overflowScrollCheck = (label.offsetHeight < label.scrollHeight || label.offsetWidth < label.scrollWidth);
+
+        return heightWidthCheck || overflowScrollCheck;
     }
 
     $scope.onCalc = onCalc;
@@ -91,8 +133,8 @@ myApp.controller("myController", function ($scope, $element) {
 
 
     //-----------------------------------
-    function resizeText(cell, label, params) {
 
+    function resizeText(cell, label, params) {
         var startTime = performance.now()
 
         if (!params)
@@ -103,18 +145,23 @@ myApp.controller("myController", function ($scope, $element) {
 
         $scope.iterationsCount = 0;
 
-        switch ($scope.handler) {
-            case "simple":
-                $scope.iterationsCount = simpleResize(cell, label, params);
-                break;
-            case "type_1":
-                $scope.iterationsCount = search_type_1(cell, label, params);
-                break;
-            case "type_2":
-                $scope.iterationsCount = search_type_2(cell, label, params);
-                break;
 
-        }
+        $scope.iterationsCount = binarySearch(cell, label, params);
+
+
+        // switch ($scope.handler) {
+        //     case "simple":
+        //         $scope.iterationsCount = simpleResize(cell, label, params);
+        //         break;
+        //     case "type_1":
+        //         $scope.iterationsCount = search_type_1(cell, label, params);
+        //         break;
+        //     case "type_2":
+        //         $scope.iterationsCount = search_type_2(cell, label, params);
+        //         break;
+
+        // }
+
         var endTime = performance.now();
 
         let resPerformance = endTime - startTime;
@@ -167,7 +214,9 @@ myApp.controller("myController", function ($scope, $element) {
         }
     }
 
-    function search_type_2(cell, label, params) {
+
+
+    function binarySearch(cell, label, params) {
         let iterationsCount = 0;
 
         let maxFontSize = cell.offsetHeight;
@@ -181,19 +230,36 @@ myApp.controller("myController", function ($scope, $element) {
         }
 
         label.style.overflow = "auto";
+        label.style.width = 'fit-content'
+
 
         let currentIndex = fontSizesList.length - 1;
 
         let maxIndex = fontSizesList.length - 1;
         let minIndex = 0;
 
-        while (true) {
-            iterationsCount++;
-            label.style.fontSize = `${currentFontSize}px`;
 
-            let isOverflown = isOverflownCheck(cell, label, params) || isOverflowByScroll(label)
+        let binarySearchIterationsCount = Math.ceil(Math.log2(fontSizesList.length)) + 1;
+        console.log(`👉 arraySize:  ${fontSizesList.length} \n iterations: ${binarySearchIterationsCount}`)
+
+
+        while (true) {
+            console.log(`current ARR LENTH ${maxIndex - minIndex}`);
+
+            if (params.setFontSizeDelegate)
+                params.setFontSizeDelegate(currentFontSize, label);
+            else
+                label.style.fontSize = `${currentFontSize}px`;
+
+            let isOverflown
+            if (params.isOverFlownDelegate)
+                isOverflown = params.isOverFlownDelegate(cell, label, params);
+            else
+                isOverflown = isOverflownCheck(cell, label, params) || isOverflowByScroll(label, params)
 
             if (maxIndex - minIndex === 1) {
+                label.style.removeProperty("overflow");
+                label.style.removeProperty("width");
                 return iterationsCount;
             }
 
@@ -206,6 +272,7 @@ myApp.controller("myController", function ($scope, $element) {
 
             currentIndex = Math.floor(((maxIndex - minIndex) / 2) + minIndex);
             currentFontSize = fontSizesList[currentIndex];
+            iterationsCount++;
         }
     }
 
@@ -232,7 +299,6 @@ myApp.controller("myController", function ($scope, $element) {
     }
 
     function isOverflownCheck(cell, label, params) {
-
         let heightRatio = params?.maxHeight ? params.maxHeight / 100 : 1;
         let widthRatio = params?.maxWidth ? params.maxWidth / 100 : 1;
 
@@ -242,7 +308,7 @@ myApp.controller("myController", function ($scope, $element) {
 
     function isOverflowByScroll(label) {
         return window.getComputedStyle(label).overflow === 'auto'
-            && 
+            &&
             (label.offsetHeight < label.scrollHeight || label.offsetWidth < label.scrollWidth);
     }
 
